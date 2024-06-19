@@ -39,14 +39,16 @@ public class ClientThread extends Thread {
                         .readValue(rawMessage, Message.class);
 
                 switch (message.type) {
-                    case Broadcast -> server.broadcast(message);
+                    case Broadcast -> server.broadcast(message, this);
                     case Login -> login(message.content);
+                    case Command -> commands(message);
                 }
             }
 
 
         } catch (IOException e) {
             throw new RuntimeException(e);
+            // do the disconnect?
         }
     }
 
@@ -58,7 +60,35 @@ public class ClientThread extends Thread {
 
     public void login(String name) throws JsonProcessingException {
         clientName = name;
-        Message message = new Message(MessageType.Broadcast, "Welcome, " + name);
-        send(message);
+        Message message = new Message(MessageType.Broadcast, name + " has joined the chat!");
+        server.broadcast(message, this);
     }
+
+    public void commands(Message command) throws JsonProcessingException {
+        // /online          ->  /o
+        // /w [receiver]    ->  /w
+        // /disconnect      ->  /d
+        switch (command.content.substring(0,2)) {
+            case "/o" -> {
+                if (command.equals("/online")) {    // to można (a nawet bym radził) usunąć lecz w zadaniu ewidentnie potrzeba "/online" więc dla tego to tu jest
+
+                }
+            }
+            case "/w" -> {
+                int startPosition = 3;
+                int endPosition = command.content.indexOf(' ', startPosition);
+                String receiver = command.content.substring(startPosition, endPosition);
+                System.out.println("receiver -> ]" + receiver + "[");           //check
+                command.content = command.content.substring(endPosition + 1);
+                System.out.println("content -> ]" + command.content + "[");    //check
+                server.direct(command, this, receiver);
+            }
+            case "/d" -> {
+                if (command.equals("/disconnect")) {
+
+                }
+            }
+        }
+    }
+
 }
