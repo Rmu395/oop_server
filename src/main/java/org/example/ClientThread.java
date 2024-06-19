@@ -48,7 +48,6 @@ public class ClientThread extends Thread {
 
         } catch (IOException e) {
             throw new RuntimeException(e);
-            // do the disconnect?
         }
     }
 
@@ -70,21 +69,26 @@ public class ClientThread extends Thread {
         // /disconnect      ->  /d
         switch (command.content.substring(0,2)) {
             case "/o" -> {
-                if (command.equals("/online")) {    // to można (a nawet bym radził) usunąć lecz w zadaniu ewidentnie potrzeba "/online" więc dla tego to tu jest
-
+                if (command.content.equals("/online")) {    // to można (a nawet bym radził) usunąć lecz w zadaniu ewidentnie potrzeba "/online" więc dla tego to tu jest
+                    server.clientList(this);
                 }
             }
             case "/w" -> {
                 int startPosition = 3;
                 int endPosition = command.content.indexOf(' ', startPosition);
                 String receiver = command.content.substring(startPosition, endPosition);
-                System.out.println("receiver -> ]" + receiver + "[");           //check
+//                System.out.println("receiver -> ]" + receiver + "[");           //check
+
                 command.content = command.content.substring(endPosition + 1);
-                System.out.println("content -> ]" + command.content + "[");    //check
+//                System.out.println("content -> ]" + command.content + "[");    //check
+
+                command.type = MessageType.Broadcast;
                 server.direct(command, this, receiver);
             }
             case "/d" -> {
-                if (command.equals("/disconnect")) {
+                if (command.content.equals("/disconnect")) {
+                    Message disconnectMessage = new Message(MessageType.Broadcast, clientName + " has disconnected from the chat!");
+                    server.broadcast(disconnectMessage, this);
 
                 }
             }

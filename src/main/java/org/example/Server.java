@@ -37,20 +37,29 @@ public class Server {
 
     public void direct(Message message, ClientThread sender, String receiver) throws JsonProcessingException {
         boolean found = false;
-        System.out.println("in direct");
+//        System.out.println("in direct");
         for (ClientThread client: clients) {
-            System.out.println("in for loop");
+//            System.out.println("in for loop");
             if (client.clientName.equals(receiver) && client != sender) {
-                System.out.println("in if");
-                message.content += " [direct form: " + sender.clientName + "]";
+//                System.out.println("in if");
+                message.content = "[direct form: " + sender.clientName + "] " + message.content;
                 client.send(message);
                 found = true;
             }
         }
         if (!found) {
-            System.out.println("in not found");
+//            System.out.println("in not found");
             message.content += " - [not sent, receiver offline]";
             sender.send(message);
         }
+    }
+
+    public void clientList(ClientThread sender) throws JsonProcessingException {
+        Message listOfClients = new Message(MessageType.Broadcast, "[\nClients Online:\n");
+        for (ClientThread client: clients) {
+            listOfClients.content += client.clientName + "\n";
+        }
+        listOfClients.content += "]";
+        sender.send(listOfClients);
     }
 }
